@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Thi Trắc Nghiệm Toán 9</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --success-color: #2ECC71;
+            --error-color: #E74C3C;
+            --text-color: #2C3E50;
+            --bg-color: #F5F7FA;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        h2, h3 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Màn hình đăng ký */
+        .register-screen {
+            text-align: center;
+        }
+
+        .input-group {
+            margin: 25px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.2);
+        }
+
+        /* Header tiến trình */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ECEFF1;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .score-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #F39C12;
+        }
+
+        /* Vùng câu hỏi */
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* Vùng đáp án */
+        .answers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .answer-btn {
+            background-color: #F8F9FA;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            background-color: #EDF2F7;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background-color: #E8F8F5 !important;
+            border-color: var(--success-color) !important;
+            color: var(--success-color) !important;
+            font-weight: 600;
+        }
+
+        .answer-btn.wrong {
+            background-color: #FDEDEC !important;
+            border-color: var(--error-color) !important;
+            color: var(--error-color) !important;
+            font-weight: 600;
+        }
+
+        /* Giải thích ngắn */
+        .explanation-box {
+            background-color: #EBF5FB;
+            border-left: 5px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #2E4053;
+            line-height: 1.5;
+        }
+
+        /* Nút chung */
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-success { background-color: var(--success-color); box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3); }
+        .btn-success:hover { box-shadow: 0 6px 12px rgba(46, 204, 113, 0.4); }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Bảng xếp hạng kết quả sao lưu */
+        .history-section {
+            margin-top: 30px;
+            border-top: 2px dashed #CBD5E0;
+            padding-top: 20px;
+            text-align: left;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .history-table th, .history-table td {
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            text-align: center;
+        }
+
+        .history-table th {
+            background-color: #EDF2F7;
+            color: var(--text-color);
+        }
+
+        .hide {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <!-- 1. MÀN HÌNH ĐĂNG KÝ TÊN -->
+        <div id="register-screen" class="register-screen">
+            <h2>📝 ĐĂNG KÝ THI TRẮC NGHIỆM</h2>
+            <p style="color: #718096;">Chủ đề: Hệ hai phương trình bậc nhất hai ẩn (Toán 9)</p>
+            <div class="input-group">
+                <input type="text" id="username-input" placeholder="Nhập họ và tên của bạn..." autocomplete="off">
+            </div>
+            <button class="btn" id="start-game-btn">Bắt Đầu Làm Bài</button>
+            
+            <!-- Lưu lịch sử dưới màn hình đăng ký -->
+            <div id="global-history" class="history-section hide">
+                <h3>📊 Lịch Sử Sao Lưu Kết Quả (Local)</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Họ và Tên</th>
+                            <th>Số Câu Đúng</th>
+                            <th>Điểm Số</th>
+                            <th>Thời Gian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <!-- Dữ liệu render từ localStorage -->
+                    </tbody>
+                </table>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="btn" style="background-color: #E74C3C; padding: 8px 15px; font-size: 0.9rem;" id="clear-history-btn">Xóa Lịch Sử</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MÀN HÌNH CHƠI GAME -->
+        <div id="quiz-screen" class="hide">
+            <div class="quiz-header">
+                <div class="progress-text" id="progress">Câu hỏi: 0/0</div>
+                <div class="score-text" id="score-display">Điểm: 0</div>
+            </div>
+            
+            <div class="question-text" id="question">Đang tải...</div>
+            
+            <div class="answers-container" id="answers"></div>
+            
+            <div id="explanation-container" class="explanation-box hide"></div>
+            
+            <div class="quiz-footer">
+                <button class="btn" id="next-button" disabled>Câu tiếp theo</button>
+            </div>
+        </div>
+
+        <!-- 3. MÀN HÌNH KẾT QUẢ -->
+        <div id="result-screen" class="register-screen hide">
+            <h2>🎉 Hoàn Thành Bài Thi! 🎉</h2>
+            <p style="font-size: 1.2rem; margin: 20px 0; color: var(--text-color);" id="user-congrats"></p>
+            <div style="font-size: 1.3rem; margin-bottom: 30px; line-height: 1.8;" id="result-text"></div>
+            <button class="btn btn-success" id="restart-button">Thi Lượt Mới</button>
+        </div>
+    </div>
+
+    <script>
+        // Ngân hàng câu hỏi chuẩn Toán 9
+        const originalQuestions = [
+            {
+                q: "Trong các hệ phương trình sau, hệ nào là hệ hai phương trình bậc nhất hai ẩn?",
+                options: ["{ 3x + 2y = 7 \n{ x - 4y = -2", "{ x + y = 3 \n{ x² - y = 1", "{ 2x - y = 4 \n{ 1/x + y = 5", "{ x + y - z = 2 \n{ 2x - y = 1"],
+                answer: "{ 3x + 2y = 7 \n{ x - 4y = -2",
+                exp: "Hệ hai phương trình bậc nhất hai ẩn có dạng các ẩn x, y đều ở bậc nhất (mũ 1) và không nằm ở mẫu số."
+            },
+            {
+                q: "Cặp số (x; y) = (2; -1) là nghiệm của hệ phương trình nào sau đây?",
+                options: ["{ x + 2y = 0 \n{ 2x - y = 5", "{ x - y = 3 \n{ x + y = 2", "{ 2x + y = 2 \n{ x - y = 1", "{ 3x - y = 5 \n{ x + 3y = -1"],
+                answer: "{ x + 2y = 0 \n{ 2x - y = 5",
+                exp: "Thay x = 2 và y = -1 vào hệ đúng: 2 + 2(-1) = 0 và 2(2) - (-1) = 5 (Đều đúng)."
+            },
+            {
+                q: "Khi giải hệ phương trình { x = 2y - 3 \n{ 3x + y = 5 bằng phương pháp thế, ta thu được phương trình một ẩn đối với y là:",
+                options: ["3(2y - 3) + y = 5", "3x + 2y - 3 = 5", "2y - 3 + y = 5", "3(2y - 3) - y = 5"],
+                answer: "3(2y - 3) + y = 5",
+                exp: "Ta thế trực tiếp biểu thức x = 2y - 3 từ phương trình thứ nhất vào chỗ chữ x ở phương trình thứ hai."
+            },
+            {
+                q: "Cho hệ phương trình { 3x + 2y = 11 \n{ 3x - 2y = 1. Nếu cộng từng vế hai phương trình, ta được phương trình nào?",
+                options: ["6x = 12", "6x = 10", "4y = 10", "6x + 4y = 12"],
+                answer: "6x = 12",
+                exp: "Cộng vế theo vế: (3x + 3x) + (2y - 2y) = 11 + 1 suy ra 6x = 12 (ẩn y bị triệt tiêu)."
+            },
+            {
+                q: "Hệ hai phương trình bậc nhất hai ẩn { ax + by = c \n{ a'x + b'y = c' có vô số nghiệm khi các hệ số thỏa mãn tỉ lệ nào?",
+                options: ["a/a' = b/b' = c/c'", "a/a' = b/b' ≠ c/c'", "a/a' ≠ b/b'", "a/a' = b/b'"],
+                answer: "a/a' = b/b' = c/c'",
+                exp: "Khi các tỉ số đều bằng nhau, hai đường thẳng biểu diễn hai phương trình trùng nhau hoàn toàn nên hệ có vô số nghiệm."
+            },
+            {
+                q: "Cho hệ phương trình { 2x - 4y = 6 \n{ x - 2y = k. Để hệ phương trình vô nghiệm, giá trị k thỏa mãn điều kiện gì?",
+                options: ["k ≠ 3", "k = 3", "k = 6", "k ≠ 6"],
+                answer: "k ≠ 3",
+                exp: "Tỉ lệ hệ số là 2/1 = -4/-2 = 2. Để hệ vô nghiệm thì phần hằng số phải khác tỉ lệ này: 6/k ≠ 2 => k ≠ 3."
+            },
+            {
+                q: "Nghịệm (x; y) của hệ phương trình { x + y = 7 \n{ x - y = 3 là:",
+                options: ["(5; 2)", "(4; 3)", "(6; 1)", "(3; 4)"],
+                answer: "(5; 2)",
+                exp: "Cộng hai phương trình ta được 2x = 10 => x = 5. Thế vào tìm được y = 2."
+            },
+            {
+                q: "Tổng số đầu gà và chó là 36 con, tổng số chân là 100 chân. Ký hiệu x là số gà, y là số chó. Phương trình tổng số chân là gì?",
+                options: ["2x + 4y = 100", "4x + 2y = 100", "x + y = 100", "2x + 2y = 100"],
+                answer: "2x + 4y = 100",
+                exp: "Một con gà có 2 chân (2x), một con chó có 4 chân (4y), tổng số chân của cả đàn bằng 100."
+            }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let currentUsername = "";
+
+        // Elements
+        const registerScreen = document.getElementById('register-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const usernameInput = document.getElementById('username-input');
+        const questionEl = document.getElementById('question');
+        const answersContainer = document.getElementById('answers');
+        const explanationContainer = document.getElementById('explanation-container');
+        const nextButton = document.getElementById('next-button');
+        const progressEl = document.getElementById('progress');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const userCongratsEl = document.getElementById('user-congrats');
+        const resultTextEl = document.getElementById('result-text');
+        const historyTbody = document.getElementById('history-tbody');
+        const globalHistoryDiv = document.getElementById('global-history');
+
+        // Khởi động khi mở trang
+        window.onload = function() {
+            renderHistoryTable();
+            
+            document.getElementById('start-game-btn').onclick = function() {
+                const name = usernameInput.value.trim();
+                if(!name) {
+                    alert("Vui lòng nhập tên của bạn trước khi thi!");
+                    return;
+                }
+                currentUsername = name;
+                startQuiz();
+            };
+
+            nextButton.onclick = function() {
+                currentIndex++;
+                if(currentIndex < currentQuestions.length) {
+                    showQuestion();
+                } else {
+                    finishQuiz();
+                }
+            };
+
+            document.getElementById('restart-button').onclick = function() {
+                resultScreen.classList.add('hide');
+                registerScreen.classList.remove('hide');
+                renderHistoryTable();
+            };
+
+            document.getElementById('clear-history-btn').onclick = function() {
+                if(confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử lưu trữ kết quả thi không?")) {
+                    localStorage.removeItem('quiz_history_toan9');
+                    renderHistoryTable();
+                }
+            };
+        };
+
+        function shuffleArray(arr) {
+            return arr.sort(() => Math.random() - 0.5);
+        }
+
+        function startQuiz() {
+            registerScreen.classList.add('hide');
+            quizScreen.classList.remove('hide');
+            
+            score = 0;
+            correctCount = 0;
+            currentIndex = 0;
+            
+            // Xáo trộn câu hỏi
+            currentQuestions = shuffleArray(JSON.parse(JSON.stringify(originalQuestions)));
+            scoreDisplayEl.innerText = `Điểm: 0`;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            nextButton.disabled = true;
+            explanationContainer.classList.add('hide');
+            answersContainer.innerHTML = "";
+            
+            const qData = currentQuestions[currentIndex];
+            progressEl.innerText = `Câu hỏi: ${currentIndex + 1}/${currentQuestions.length}`;
+            questionEl.innerText = `${currentIndex + 1}. ${qData.q.replace(/\n/g, '\n')}`;
+            
+            // Xáo trộn đáp án
+            const shuffledOptions = shuffleArray([...qData.options]);
+            
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerText = opt.replace(/\n/g, '\n');
+                btn.onclick = () => selectAnswer(btn, opt, qData.answer, qData.exp);
+                answersContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedBtn, chosenOpt, correctOpt, explanation) {
+            const btns = answersContainer.querySelectorAll('.answer-btn');
+            btns.forEach(b => b.disabled = true); // Khóa nút
+            
+            if(chosenOpt === correctOpt) {
+                selectedBtn.classList.add('correct');
+                score += 10;
+                correctCount++;
+                scoreDisplayEl.innerText = `Điểm: ${score}`;
+            } else {
+                selectedBtn.classList.add('wrong');
+                // Hiển thị nút đúng
+                btns.forEach(b => {
+                    if(b.innerText === correctOpt.replace(/\n/g, '\n')) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Hiện giải thích
+            explanationContainer.innerText = `💡 Giải thích: ${explanation}`;
+            explanationContainer.classList.remove('hide');
+            nextButton.disabled = false;
+        }
+
+        function finishQuiz() {
+            quizScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+            
+            userCongratsEl.innerText = `Chúc mừng thí sinh: ${currentUsername}`;
+            
+            let evaluation = "";
+            const rate = correctCount / currentQuestions.length;
+            if(rate === 1) evaluation = "Xuất sắc! Bạn nắm bài cực kỳ chắc chắn.";
+            else if(rate >= 0.8) evaluation = "Giỏi lắm! Phát huy phong độ này trong kỳ thi thật nhé.";
+            else if(rate >= 0.5) evaluation = "Khá tốt! Tuy nhiên cần luyện tập thêm các câu biến đổi.";
+            else evaluation = "Bạn cần xem lại lý thuyết và các bài tập phương pháp thế/cộng đại số.";
+
+            resultTextEl.innerHTML = `
+                Số câu trả lời đúng: <strong>${correctCount}/${currentQuestions.length}</strong> câu.<br>
+                Tổng điểm số: <strong style="color: #2ECC71; font-size: 1.5rem;">${score} điểm</strong>.<br>
+                Nhận xét: <em>${evaluation}</em>
+            `;
+            
+            // Lưu kết quả vào localStorage
+            saveToStorage(currentUsername, correctCount, currentQuestions.length, score);
+        }
+
+        function saveToStorage(name, correct, total, score) {
+            let history = localStorage.getItem('quiz_history_toan9');
+            if(!history) {
+                history = [];
+            } else {
+                history = JSON.parse(history);
+            }
+            
+            const timeNow = new Date().toLocaleString('vi-VN');
+            history.push({
+                name: name,
+                correct: `${correct}/${total}`,
+                score: score,
+                time: timeNow
+            });
+            
+            localStorage.setItem('quiz_history_toan9', JSON.stringify(history));
+        }
+
+        function renderHistoryTable() {
+            let history = localStorage.getItem('quiz_history_toan9');
+            historyTbody.innerHTML = "";
+            
+            if(history) {
+                history = JSON.parse(history);
+                if(history.length > 0) {
+                    globalHistoryDiv.classList.remove('hide');
+                    // Hiển thị từ mới nhất lên đầu
+                    history.reverse().forEach((item, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td><strong>${item.name}</strong></td>
+                            <td>${item.correct}</td>
+                            <td style="color:#27AE60; font-weight:bold;">${item.score}</td>
+                            <td style="font-size:0.85rem; color:#7F8C8D;">${item.time}</td>
+                        `;
+                        historyTbody.appendChild(tr);
+                    });
+                    return;
+                }
+            }
+            globalHistoryDiv.classList.add('hide');
+        }
+    </script>
+</body>
+</html>
